@@ -2,32 +2,36 @@ class VegetablesController < ApplicationController
 
   # When accessing from a model, use the Singular version of the model name.
   def index
-    #@vegetables = Vegetables.all
     @vegetables = Vegetable.all
   end
 
   # We'll allow the user to search by name as well.
   def show
     @vegetable = Vegetable.find_by(name: params[:name]) if params[:name]
+    # If they aren't searching by name then assume they're searching by ID.
     @vegetable ||= Vegetable.find(params[:id])
   end
 
+  # This should be fine since the new view will want to use
+  # the vegetable instance variable.
   def new
     @vegetable = Vegetable.new
   end
 
+
+  # You will probably want to add a flash message here.
+  # Also, you can render :new instead and it will keep the
+  # previously filled out forms.
+  # Finally, use if else so we only have one flashed message.
   def create
     @vegetable = Vegetable.new(whitelisted_vegetable_params)
     if @vegetable.save
       flash[:success] = "That sounds like a tasty vegetable!"
       redirect_to @vegetable
+    else
+      flash[:error] = "I don't think THAT is a vegetable."
+      render :new
     end
-      # You will probably want to add a flash message here.
-      # Also, you can render :new instead and it will keep the
-      # previously filled out forms.
-    #redirect_to :new (old)
-    flash[:error] = "I don't think THAT is a vegetable."
-    render :new
   end
 
   # Whitelisted params are for when you pass a hash into
@@ -62,17 +66,19 @@ class VegetablesController < ApplicationController
     if vegetable.destroy
       flash[:success] = "That veggie is trashed."
     else
-      flash["error"] = "That vegetable is indestructible?!"
+      flash[:error] = "That vegetable is indestructible?!"
     end
-    # We'll just bring the user back to the list of vegetables if it fails.
+    # We'll just bring the user back to the list of vegetables
+    # regardless of the outcome.
     redirect_to vegetables_path
   end
 
   private
 
-  # You have to call require from params.
-  def whitelisted_vegetable_params
-    params.require(:vegetable).permit(:name, :color, :rating, :latin_name)
-  end
+    # You have to call require from params.
+    # Also, indent methods under private.
+    def whitelisted_vegetable_params
+      params.require(:vegetable).permit(:name, :color, :rating, :latin_name)
+    end
 
 end
