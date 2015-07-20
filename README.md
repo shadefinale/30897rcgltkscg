@@ -9,3 +9,5 @@ Your friend at Gnikiv Code School is having a lot of trouble with their `vegetab
 Complete [this Google form](https://docs.google.com/forms/d/1nKfg82bdNTll2vbqIsj_eqqHw4jsCF5cfiQhvQS8Bm8/viewform?usp=send_form) with 12 questions about last week's material, plus 2 bonus questions.
 
 **Good luck!**
+
+Donald Kelsey

@@ -1,11 +1,15 @@
 class VegetablesController < ApplicationController
 
+  # When accessing from a model, use the Singular version of the model name.
   def index
-    @vegetables = Vegetables.all
+    #@vegetables = Vegetables.all
+    @vegetables = Vegetable.all
   end
 
+  # We'll allow the user to search by name as well.
   def show
-    @vegetable = Vegetable.find(params[:id])
+    @vegetable = Vegetable.find_by(name: params[:name]) if params[:name]
+    @vegetable ||= Vegetable.find(params[:id])
   end
 
   def new
@@ -18,15 +22,28 @@ class VegetablesController < ApplicationController
       flash[:success] = "That sounds like a tasty vegetable!"
       redirect_to @vegetable
     end
-    redirect_to :new
+      # You will probably want to add a flash message here.
+      # Also, you can render :new instead and it will keep the
+      # previously filled out forms.
+    #redirect_to :new (old)
+    flash[:error] = "I don't think THAT is a vegetable."
+    render :new
   end
 
+  # Whitelisted params are for when you pass a hash into
+  # the new method of a model, not for when you're trying
+  # to find something by one attribute.
+  # We can use find_by for a specific attribute,
+  # or just find for an id.
   def edit
-    @vegetable = Vegetable.find(whitelisted_vegetable_params)
+    @vegetable = Vegetable.find(params[:id])
   end
 
+  # If you're trying to find a vegetable, you need to use
+  # find rather than new.
+  # Similarly to edit, you use an id rather than the whitelisted params hash.
   def update
-    @vegetable = Vegetable.new(whitelisted_vegetable_params)
+    @vegetable = Vegetable.find(params[:id])
     if @vegetable.update
       flash[:success] = "A new twist on an old favorite!"
       redirect_to @vegetable
@@ -36,17 +53,26 @@ class VegetablesController < ApplicationController
     end
   end
 
+  # When you are deleting a vegetable, you likely want to add
+  # an error message when it doesn't work.
+  # I guess also technically vegetable doesn't need to be an instance
+  # variable since there's no view that will access it.
   def delete
-    @vegetable = Vegetable.find(params[:id])
-    @vegetable.destroy
-    flash[:success] = "That veggie is trashed."
-    redirect_to @vegetable
+    vegetable = Vegetable.find(params[:id])
+    if vegetable.destroy
+      flash[:success] = "That veggie is trashed."
+    else
+      flash["error"] = "That vegetable is indestructible?!"
+    end
+    # We'll just bring the user back to the list of vegetables if it fails.
+    redirect_to vegetables_path
   end
 
   private
 
+  # You have to call require from params.
   def whitelisted_vegetable_params
-    require(:vegetable).permit(:name, :color, :rating, :latin_name)
+    params.require(:vegetable).permit(:name, :color, :rating, :latin_name)
   end
 
 end
